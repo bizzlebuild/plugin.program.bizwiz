@@ -47,10 +47,31 @@ import xbmc
 import xbmcgui
 
 import re
-import urllib2
-import urllib
-import cgi
-import HTMLParser
+try:
+    import urllib.request as urllib2
+    import urllib.parse as urllib
+    from urllib.parse import parse_qs
+    import html
+except ImportError:
+    import urllib2
+    import urllib
+    from cgi import parse_qs
+    import HTMLParser as html
+
+class _HTMLParserCompat:
+    class HTMLParser:
+        def unescape(self, value):
+            try:
+                return html.unescape(value)
+            except AttributeError:
+                return html.HTMLParser().unescape(value)
+
+HTMLParser = _HTMLParserCompat
+
+class _CgiCompat:
+    parse_qs = staticmethod(parse_qs)
+
+cgi = _CgiCompat()
 
 try:
     import simplejson as json
